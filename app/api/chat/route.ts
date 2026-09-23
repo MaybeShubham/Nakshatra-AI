@@ -158,12 +158,11 @@ export async function POST(request: Request) {
     })
 
     let assistantReply = ''
-    let lastModelError = ''
+    let primaryModelError = ''
     const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-lite',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
+      'gemini-3.8-flash',
+      'gemini-3.6-flash',
+      'gemini-3.5-flash-lite',
     ]
 
     for (const modelName of candidateModels) {
@@ -186,13 +185,15 @@ export async function POST(request: Request) {
           break
         }
       } catch (err: any) {
-        lastModelError = err?.message || String(err)
-        console.warn(`Model ${modelName} call failed, trying fallback...`, lastModelError)
+        if (!primaryModelError) {
+          primaryModelError = `[${modelName}]: ${err?.message || String(err)}`
+        }
+        console.warn(`Model ${modelName} call failed, trying fallback...`, err?.message)
       }
     }
 
     if (!assistantReply) {
-      throw new Error(`Failed to generate response from Gemini API: ${lastModelError || 'Unknown model error'}`)
+      throw new Error(`Failed to generate response from Gemini API: ${primaryModelError || 'Unknown model error'}`)
     }
 
     // 5. Asynchronously persist assistant reply (non-blocking for response return)
