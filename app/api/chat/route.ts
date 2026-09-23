@@ -150,12 +150,25 @@ export async function POST(request: Request) {
     const ai = getAiClient(apiKey)
 
     const contents: any[] = []
-    history.forEach((msg) => {
-      contents.push({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }],
+    if (Array.isArray(history)) {
+      history.forEach((msg) => {
+        if (msg.content && msg.content.trim()) {
+          contents.push({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content.trim() }],
+          })
+        }
       })
-    })
+    }
+
+    // Guarantee the current user message is present at the end of contents
+    const lastContent = contents.length > 0 ? contents[contents.length - 1] : null
+    if (!lastContent || lastContent.parts[0]?.text !== trimmedUserContent) {
+      contents.push({
+        role: 'user',
+        parts: [{ text: trimmedUserContent }],
+      })
+    }
 
     let assistantReply = ''
     let primaryModelError = ''
