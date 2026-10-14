@@ -173,9 +173,11 @@ export async function POST(request: Request) {
     let assistantReply = ''
     let primaryModelError = ''
     const candidateModels = [
-      'gemini-3.8-flash',
-      'gemini-3.6-flash',
+      'gemini-3.7-flash',
       'gemini-3.5-flash-lite',
+      'gemini-3-flash',
+      'gemini-3.7-flash-preview',
+      'gemini-3-flash-preview',
     ]
 
     for (const modelName of candidateModels) {
